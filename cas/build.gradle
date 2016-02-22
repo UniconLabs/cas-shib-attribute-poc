@@ -1,0 +1,48 @@
+apply from: 'http://dl.bintray.com/scalding/generic/waroverlay.gradle'
+apply plugin: 'groovy'
+
+repositories {
+    jcenter()
+    maven { url 'https://build.shibboleth.net/nexus/content/groups/public' }
+    mavenCentral artifactUrls: ['http://developer.jasig.org/repo/content/groups/m2-legacy/', 'http://central.maven.org/maven2/']
+    maven { url 'http://oss.sonatype.org/content/repositories/releases/' }
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+}
+
+configurations.all {
+    resolutionStrategy {
+        eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'org.springframework') {
+                details.useVersion('4.2.4.RELEASE')
+            }
+            if (details.requested.group == 'org.slf4j') {
+                details.useVersion('1.7.13')
+            }
+        }
+    }
+}
+
+dependencies {
+    runtime("org.jasig.cas:cas-server-webapp:${project.'cas.version'}@war") {
+        transitive = true
+    }
+
+    compile "org.jasig.service.persondir:person-directory-api:1.7.1"
+
+    ['api', 'impl', 'spring'].each {
+        compile "net.shibboleth.idp:idp-attribute-resolver-${it}:${project.'shibboleth.version'}"
+    }
+
+    //TODO: figure out which of this is really needed
+    ['saml-api', 'schema', 'attribute-filter-spring', 'core', 'profile-spring', 'attribute-filter-impl'].each {
+        compile "net.shibboleth.idp:idp-${it}:${project.'shibboleth.version'}", {
+            transitive = false
+        }
+    }
+    compile "org.codehaus.groovy:groovy-all:2.4.5"
+    providedCompile "javax.servlet:javax.servlet-api:3.1.0"
+}
+
+war {
+    baseName 'cas'
+}

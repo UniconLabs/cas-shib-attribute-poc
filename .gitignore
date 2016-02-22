@@ -1,0 +1,14 @@
+.gradle
+
+*.ipr
+*.iml
+.idea
+
+.classpath
+.project
+.settings
+
+/classes/**
+build
+
+overlays
